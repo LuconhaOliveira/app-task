@@ -108,9 +108,7 @@ const adicionarTarefa = ()=>{
         alert('Por favor, preencha os campos obrigatórios');
     }
 
-    setTimeout(()=>{
-        alert('Tarefa marcada como concluída!');
-    },200);
+    
 };
 
 window.onload = function(){
@@ -149,6 +147,61 @@ const marcarComoConcluida = (button)=>{
 
         localStorage['tarefas'] = JSON.stringify(tarefas);
     }
+    setTimeout(()=>{
+        alert('Tarefa marcada como concluída!');
+    },200);
+}
 
+const editarTarefa = (button)=>{
 
+    const taskItem = button.closest('.task-item');
+
+    if(taskItem.classList.contains('concluida')){
+        alert('Esta tarefa já foi concluída!');
+        return;
+    }else{
+        const taskName = taskItem.querySelector('h3').textContent;
+        const newTaskName = prompt('Titulo da tarefa:');
+        const newTaskDescription = prompt('Descrição da tarefa:');
+        if(newTaskName && newTaskDescription){
+            taskItem.querySelector('h3').textContent = newTaskName;
+            taskItem.querySelector('p').textContent = newTaskDescription;
+            let tarefas = JSON.parse(localStorage['tarefas'])||[];
+            const tarefaIndex = tarefas.findIndex(t=>t.nome===taskName);
+            if(tarefaIndex !== -1){
+                tarefas[tarefaIndex].nome = newTaskName;
+                tarefas[tarefaIndex].descricao = newTaskDescription;
+                tarefas[tarefaIndex].html = `
+                    <h3>${newTaskName}</h3>
+                    <p>${newTaskDescription}</p>
+                    <p><strong>Vencimento:</strong> ${tarefas[tarefaIndex].data} às ${tarefas[tarefaIndex].hora}</p>
+                    <div class="task-actions">
+                        <button class="complete-btn">Concluir</button>
+                        <button class="edit-btn">Editar</button>
+                        <button class="delete-btn">Excluir</button>
+                    </div>
+                `;
+                localStorage['tarefas'] = JSON.stringify(tarefas);
+            }
+            
+        }
+    }
+}
+
+const excluirTarefa = (button)=>{
+    const taskItem = button.closest('.task-item');
+
+    const taskName = taskItem.querySelector('h3').textContent;
+    let tarefas = JSON.parse(localStorage['tarefas'])||[];
+    const tarefaIndex = tarefas.findIndex(t=>t.nome===taskName);
+
+    if(tarefaIndex !== -1){
+        tarefas.splice(tarefaIndex,1);
+
+        taskItem.remove();
+
+        localStorage['tarefas'] = JSON.stringify(tarefas);
+
+        alert('Tarefa excluída!');
+    }
 }
