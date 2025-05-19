@@ -92,6 +92,29 @@ const adicionarTarefa = ()=>{
         });
 
         const tarefas = JSON.parse(localStorage.getItem('tarefas')) || [];
+        //
+
+        let newTaskDate1 = taskDate.split("-");
+        newTaskDate1.push(taskTime.split(":")[0]);
+        newTaskDate1.push(taskTime.split(":")[1]);
+        console.log(newTaskDate1);
+
+        tarefas.forEach(tarefa=>{
+            let newTaskDate2 = tarefa["data"].split("-");
+            newTaskDate2.push(tarefa["hora"].split(":")[0]);
+            newTaskDate2.push(tarefa["hora"].split(":")[1]);
+            console.log(newTaskDate2);
+
+            for(let i=0;i<5;i++){
+                if(newTaskDate2[i]-newTaskDate1[i]==0){
+                    console.log(i+" igual");
+                }else{
+                    tarefas.push()
+                }
+            }
+        });
+
+        //
         tarefas.push({
             nome: taskName,
             descricao: taskDescription,
@@ -189,46 +212,19 @@ const editarTarefa = (button)=>{
 }
 
 const excluirTarefa = (button)=>{
+    const taskItem = button.closest('.task-item');
 
-    if(confirm('Deseja realmente excluir esta tarefa?')){
-        const taskItem = button.closest('.task-item');
+    const taskName = taskItem.querySelector('h3').textContent;
+    let tarefas = JSON.parse(localStorage['tarefas'])||[];
+    const tarefaIndex = tarefas.findIndex(t=>t.nome===taskName);
 
-        const taskName = taskItem.querySelector('h3').textContent;
-        let tarefas = JSON.parse(localStorage['tarefas'])||[];
-        const tarefaIndex = tarefas.findIndex(t=>t.nome===taskName);
+    if(tarefaIndex !== -1){
+        tarefas.splice(tarefaIndex,1);
 
-        if(tarefaIndex !== -1){
-            tarefas.splice(tarefaIndex,1);
+        taskItem.remove();
 
-            taskItem.remove();
+        localStorage['tarefas'] = JSON.stringify(tarefas);
 
-            localStorage['tarefas'] = JSON.stringify(tarefas);
-
-            alert('Tarefa excluída!');
-        }
+        alert('Tarefa excluída!');
     }
 }
-
-const filtrarTarefas = (filtro)=>{
-    const tarefas = document.querySelectorAll('.task-item');
-    tarefas.forEach(tarefa =>{
-        switch(filtro){
-            case 'todas':
-                tarefa.style.display = 'block';
-                break;
-            case 'pendentes':
-                tarefa.style.display = tarefa.classList.contains('concluida')?'none':'block';
-                break;
-            case 'concluidas':
-                tarefa.style.display = tarefa.classList.contains('concluida')?'block':'none';
-                break;
-        }
-    });
-}
-
-
-document.querySelector("ordenarRecentesBtn").addEventListener('click',()=>{
-    
-    KURT COBAIN CHALLENGE TODAY AT 9 PM COME SEE IN MY TWITTER 
-
-});

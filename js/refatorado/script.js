@@ -205,3 +205,27 @@ const excluirTarefa = (button)=>{
         alert('Tarefa excluída!');
     }
 }
+
+const ordenarTarefas = (ordem)=>{
+    const taskList = document.querySelector('#taskList');
+
+    const tarefas = Array.from(document.querySelectorAll('.task-item'));
+
+    const dadosTarefas = JSON.parse(localStorage['tarefas'])||[];
+
+    tarefas.sort((a,b)=>{
+        const nomeA = a.querySelector('h3').textContent;
+        const nomeB = b.querySelector('h3').textContent;
+
+        const tarefaA = dadosTarefas.find(t=>t.nome === nomeA);
+        const tarefaB = dadosTarefas.find(t=>t.nome === nomeB);
+        
+        const dataA = new Date(`${tarefaA.data}T${tarefaA.hora}`);
+        const dataB = new Date(`${tarefaB.data}T${tarefaB.hora}`);
+
+        return ordem === 'antigas'?dataA-dataB:dataB-dataA;
+    });
+
+    taskList.innerHTML = '<h2>Suas Tarefas</h2>';
+    tarefas.forEach(tarefa=>taskList.appendChild(tarefa));
+}

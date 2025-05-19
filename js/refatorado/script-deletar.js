@@ -189,46 +189,68 @@ const editarTarefa = (button)=>{
 }
 
 const excluirTarefa = (button)=>{
+    const taskItem = button.closest('.task-item');
 
-    if(confirm('Deseja realmente excluir esta tarefa?')){
-        const taskItem = button.closest('.task-item');
+    const taskName = taskItem.querySelector('h3').textContent;
+    let tarefas = JSON.parse(localStorage['tarefas']) || [];
+    const tarefaIndex = tarefas.findIndex(t=>t.nome===taskName);
 
-        const taskName = taskItem.querySelector('h3').textContent;
-        let tarefas = JSON.parse(localStorage['tarefas'])||[];
-        const tarefaIndex = tarefas.findIndex(t=>t.nome===taskName);
+    if(tarefaIndex !== -1){
+        let lixeira = localStorage['lixeira']? JSON.parse(localStorage['lixeira']) : [];
+        console.log(lixeira);
+        console.log(tarefas[tarefaIndex]);
+        lixeira.push(tarefas[tarefaIndex]);
+        console.log(lixeira);
 
-        if(tarefaIndex !== -1){
-            tarefas.splice(tarefaIndex,1);
+        
+        tarefas.splice(tarefaIndex,1);
+        taskItem.remove();
 
-            taskItem.remove();
+        localStorage['tarefas'] = JSON.stringify(tarefas);
+        localStorage['lixeira'] = JSON.stringify(lixeira);
 
-            localStorage['tarefas'] = JSON.stringify(tarefas);
-
-            alert('Tarefa excluída!');
-        }
+        alert('Tarefa excluída!');
     }
 }
 
-const filtrarTarefas = (filtro)=>{
-    const tarefas = document.querySelectorAll('.task-item');
-    tarefas.forEach(tarefa =>{
-        switch(filtro){
-            case 'todas':
-                tarefa.style.display = 'block';
-                break;
-            case 'pendentes':
-                tarefa.style.display = tarefa.classList.contains('concluida')?'none':'block';
-                break;
-            case 'concluidas':
-                tarefa.style.display = tarefa.classList.contains('concluida')?'block':'none';
-                break;
-        }
+const ordenarTarefas = (ordem)=>{
+    const taskList = document.querySelector('#taskList');
+
+    const tarefas = Array.from(document.querySelectorAll('.task-item'));
+
+    const dadosTarefas = JSON.parse(localStorage['tarefas'])||[];
+
+    tarefas.sort((a,b)=>{
+        const nomeA = a.querySelector('h3').textContent;
+        const nomeB = b.querySelector('h3').textContent;
+
+        const tarefaA = dadosTarefas.find(t=>t.nome === nomeA);
+        const tarefaB = dadosTarefas.find(t=>t.nome === nomeB);
+        
+        const dataA = new Date(`${tarefaA.data}T${tarefaA.hora}`);
+        const dataB = new Date(`${tarefaB.data}T${tarefaB.hora}`);
+
+        return ordem === 'antigas'?dataA-dataB:dataB-dataA;
     });
+
+    taskList.innerHTML = '<h2>Suas Tarefas</h2>';
+    tarefas.forEach(tarefa=>taskList.appendChild(tarefa));
 }
 
+document.querySelector('#lixeiraBtn').addEventListener('click',()=>{
 
-document.querySelector("ordenarRecentesBtn").addEventListener('click',()=>{
-    
-    KURT COBAIN CHALLENGE TODAY AT 9 PM COME SEE IN MY TWITTER 
 
+    let tarefaRecuperada = parseInt(prompt(`Qual tarefa deseja recuperar?`))-1;
+
+    let tarefas = JSON.parse(localStorage['tarefas']) || [];
+    let lixeira = localStorage['lixeira']? JSON.parse(localStorage['lixeira']) : [];
+
+    tarefas.push(lixeira[tarefaRecuperada]);
+    lixeira.splice(tarefaRecuperada,1);
+
+    localStorage['tarefas'] = JSON.stringify(tarefas);
+    localStorage['lixeira'] = JSON.stringify(lixeira);
+
+    document.querySelector('#taskList').innerHTML = '<h2>Suas Tarefas</h2>';
+    carregarTarefas();
 });
