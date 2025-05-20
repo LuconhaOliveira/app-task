@@ -118,7 +118,36 @@ window.onload = function(){
     document.querySelector('#adicionarTarefaBtn').addEventListener('click',function(e){
         e.preventDefault();
         adicionarTarefa();
-    })
+    });
+    document.querySelector('#ordenarRecentesBtn').addEventListener('click',function(e){
+        e.preventDefault();
+        ordenarTarefas('recentes');
+    });
+    document.querySelector('#ordenarAntigasBtn').addEventListener('click',function(e){
+        e.preventDefault();
+        ordenarTarefas('antigas');
+    });
+    document.querySelector('#filtrarTodasBtn').addEventListener('click',function(e){
+        e.preventDefault();
+        filtrarTarefas('todas');
+    });
+    document.querySelector('#filtrarPendentesBtn').addEventListener('click',function(e){
+        e.preventDefault();
+        filtrarTarefas('pendentes');
+    });
+    document.querySelector('#filtrarConcluidasBtn').addEventListener('click',function(e){
+        e.preventDefault();
+        filtrarTarefas('concluidas');
+    });
+    document.querySelector('#lixeiraBtn').addEventListener('click',function(e){
+        e.preventDefault();
+        let taskIndex = mostrarTarefasExcluidas();
+        console.log(taskIndex);
+        if(taskIndex){
+            resgatarTarefaExcluida(taskIndex-1);
+            carregarTarefas();
+        }
+    });
 };
 
 const marcarComoConcluida = (button)=>{
@@ -194,8 +223,9 @@ const excluirTarefa = (button)=>{
     const taskName = taskItem.querySelector('h3').textContent;
     let tarefas = JSON.parse(localStorage['tarefas']) || [];
     const tarefaIndex = tarefas.findIndex(t=>t.nome===taskName);
-
+    
     if(tarefaIndex !== -1){
+        //meu codigo
         let lixeira = localStorage['lixeira']? JSON.parse(localStorage['lixeira']) : [];
         console.log(lixeira);
         console.log(tarefas[tarefaIndex]);
@@ -237,20 +267,82 @@ const ordenarTarefas = (ordem)=>{
     tarefas.forEach(tarefa=>taskList.appendChild(tarefa));
 }
 
-document.querySelector('#lixeiraBtn').addEventListener('click',()=>{
+// document.querySelector('#lixeiraBtn').addEventListener('click',()=>{
 
+    
+//     let lixeira = localStorage['lixeira']? JSON.parse(localStorage['lixeira']) : [];
 
-    let tarefaRecuperada = parseInt(prompt(`Qual tarefa deseja recuperar?`))-1;
+//     let tarefaRecuperada = parseInt(prompt(`Qual tarefa deseja recuperar?`));
 
-    let tarefas = JSON.parse(localStorage['tarefas']) || [];
-    let lixeira = localStorage['lixeira']? JSON.parse(localStorage['lixeira']) : [];
+//     if(!tarefaRecuperada){
+//         alert('Tarefa não encontrada!');
+//         return;
+//     }
 
-    tarefas.push(lixeira[tarefaRecuperada]);
-    lixeira.splice(tarefaRecuperada,1);
+//     let tarefas = JSON.parse(localStorage['tarefas']) || [];
+
+//     tarefas.push(lixeira[tarefaRecuperada]);
+//     lixeira.splice(tarefaRecuperada,1);
+
+//     localStorage['tarefas'] = JSON.stringify(tarefas);
+//     localStorage['lixeira'] = JSON.stringify(lixeira);
+
+//     document.querySelector('#taskList').innerHTML = '<h2>Suas Tarefas</h2>';
+//     carregarTarefas();
+// });
+
+const mostrarTarefasExcluidas = ()=>{
+    const lixeira = localStorage['lixeira']? JSON.parse(localStorage['lixeira']) : [];
+
+    let tarefasExcluidas = `Tarefas excluídas:\n`;
+
+    lixeira.forEach((tarefa,index) =>{
+        tarefasExcluidas += `\n${index+1}. ${tarefa.nome}`;
+    });
+
+    let tarefaIndex = parseInt(prompt(`${tarefasExcluidas}\n\nQual tarefa deseja recuperar?`));
+
+    console.log(tarefaIndex);
+    console.log(lixeira.length);
+
+    if(!tarefaIndex){
+        alert('Tarefa não encontrada!');
+        return;
+    }else if(tarefaIndex>lixeira.length && tarefaIndex<=0){
+        alert('Tarefa não encontrada');
+        return;
+    }else{
+        return tarefaIndex;
+    }
+}
+
+const resgatarTarefaExcluida = (index) =>{
+    let lixeira = localStorage['lixeira']? JSON.parse(localStorage['lixeira']):[];
+    let tarefas = localStorage['tarefas']? JSON.parse(localStorage['tarefas']):[];
+
+    tarefas.push(lixeira[index]);
+    lixeira.splice(index,1);
 
     localStorage['tarefas'] = JSON.stringify(tarefas);
     localStorage['lixeira'] = JSON.stringify(lixeira);
 
     document.querySelector('#taskList').innerHTML = '<h2>Suas Tarefas</h2>';
-    carregarTarefas();
-});
+}
+
+const filtrarTarefas = (filtro)=>{
+    const tarefas = document.querySelectorAll('.task-item');
+    tarefas.forEach(tarefa =>{
+        switch(filtro){
+            case 'todas':
+                tarefa.style.display = 'block';
+                break;
+            case 'pendentes':
+                tarefa.style.display = tarefa.classList.contains('concluida')?'none':'block';
+                break;
+            case 'concluidas':
+                tarefa.style.display = tarefa.classList.contains('concluida')?'block':'none';
+                break;
+        }
+    });
+}
+
