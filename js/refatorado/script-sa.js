@@ -97,15 +97,22 @@ const adicionarTarefa = ()=>{
             descricao: taskDescription,
             data: taskDate,
             hora: taskTime,
-            html: taskHTML
+            html: taskHTML,
+            concluida: false
         });
 
         localStorage.setItem('tarefas',JSON.stringify(tarefas));
 
-        alert('Tarefa adicionada com sucesso!');
+        Swal.fire({
+            title: "Tarefa adicionada com sucesso!",
+            icon: "success"
+        })
         document.querySelector('#taskForm').reset();
     }else{
-        alert('Por favor, preencha os campos obrigatórios');
+        Swal.fire({
+            title: "Preencha os campos obrigatórios!",
+            icon: "warning"
+        })
     }
 
     
@@ -142,7 +149,7 @@ window.onload = function(){
     document.querySelector('#lixeiraBtn').addEventListener('click',function(e){
         e.preventDefault();
         let taskIndex = mostrarTarefasExcluidas();
-        if(taskIndex){
+        if(taskIndex>0 && taskIndex<=JSON.parse(localStorage['lixeira']).length){
             resgatarTarefaExcluida(taskIndex-1);
             carregarTarefas();
         }
@@ -158,7 +165,10 @@ const marcarComoConcluida = (button)=>{
     const taskItem = button.closest('.task-item');
 
     if(taskItem.classList.contains('concluida')){
-        alert('Esta tarefa já foi concluída!');
+        Swal.fire({
+            title: "Essa tarefa já foi concluída",
+            icon: "warning"
+        })
         return;
     };
 
@@ -180,7 +190,10 @@ const marcarComoConcluida = (button)=>{
         localStorage['tarefas'] = JSON.stringify(tarefas);
     }
     setTimeout(()=>{
-        alert('Tarefa marcada como concluída!');
+        Swal.fire({
+            title: "Tarefa concluída!",
+            icon: "success"
+        })
     },200);
 }
 
@@ -189,7 +202,10 @@ const editarTarefa = (button)=>{
     const taskItem = button.closest('.task-item');
 
     if(taskItem.classList.contains('concluida')){
-        alert('Esta tarefa já foi concluída!');
+        Swal.fire({
+            title: "Essa tarefa já foi concluída",
+            icon: "warning"
+        })
         return;
     }else{
         const taskName = taskItem.querySelector('h3').textContent;
@@ -239,7 +255,10 @@ const excluirTarefa = (button)=>{
         localStorage['tarefas'] = JSON.stringify(tarefas);
         localStorage['lixeira'] = JSON.stringify(lixeira);
 
-        alert('Tarefa excluída!');
+        Swal.fire({
+            title: "Tarefa excluída com sucesso!",
+            icon: "success"
+        })
     }
 }
 
@@ -278,16 +297,25 @@ const mostrarTarefasExcluidas = ()=>{
 
 
     if (tarefasExcluidas == `Tarefas excluídas:\n`){
-        alert('Não há tarefas excluídas');
+        Swal.fire({
+            icon: "error",
+            title: "Não há tarefas excluídas.",
+        });
         return;
     }
     let tarefaIndex = parseInt(prompt(`${tarefasExcluidas}\n\nQual tarefa deseja recuperar?`));
 
     if(!tarefaIndex){
-        alert('Tarefa não encontrada!');
+        Swal.fire({
+            icon: "error",
+            title: "Tarefa não encontrada!",
+        });
         return;
-    }else if(tarefaIndex>lixeira.length && tarefaIndex<=0){
-        alert('Tarefa não encontrada!');
+    }else if(tarefaIndex>lixeira.length || tarefaIndex<=0){
+        Swal.fire({
+            icon: "error",
+            title: "Tarefa não encontrada!",
+        });
         return;
     }else{
         return tarefaIndex;
@@ -325,10 +353,22 @@ const filtrarTarefas = (filtro)=>{
 }
 
 const limparLixeira = ()=>{
-    if(confirm('Você tem certeza que deseja apagar as tarefas a lixeira?')){
+    Swal.fire({
+        title: "Deseja limpar a lixeira?",
+        text: "Essa ação é irreversível",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#3085d6",
+        cancelButtonColor: "#d33",
+        confirmButtonText: "Confirmar",
+        cancelButtonText: "Cancelar"
+      }).then((result) => {
+        if (result.isConfirmed) {
         localStorage['lixeira'] = [];
-    }
-    if(!localStorage['lixeira']){
-        alert('Lixeira limpa com sucesso!');
-    }
+          Swal.fire({
+            title: "Sua lixeira foi limpa!",
+            icon: "success"
+          });
+        }
+      });
 };
